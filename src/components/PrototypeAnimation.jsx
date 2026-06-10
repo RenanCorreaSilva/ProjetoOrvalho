@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useState } from 'react'
 
 // ============================================================================
 //  VISTA EM CORTE 2D LATERAL (HORIZONTAL) — estilo planta esquemática
@@ -11,6 +11,7 @@ export default function PrototypeAnimation({
   humidity = 75,
   simResult,
   showDevToggle = false, // botão temporário "Toggle Simulation" para testes isolados
+  totalMl = null,        // ml acumulados vindos do cronômetro do App
 }) {
   const r = simResult || {}
   // Vazão real calculada (ml/h); fallback para 115 quando rodando isolado sem dados.
@@ -20,43 +21,12 @@ export default function PrototypeAnimation({
   const [internalSim, setInternalSim] = useState(false)
   const isSimulating = isSimulatingProp ?? internalSim
 
-  // Nível de água no copo (0 a 1)
-  const [waterLevel, setWaterLevel] = useState(0)
-  const waterRef = useRef(0)
-  const fillRef = useRef(null)
-  const drainRef = useRef(null)
-
-  // O copo só enche quando HÁ condensação de fato. Simulando sem atingir o
-  // ponto de orvalho (ou parado) → o copo drena e fica vazio.
-  // Quando rodando isolado (showDevToggle, sem simResult), assume que há água.
   const collecting =
     isSimulating && (simResult ? r.hasCondensation : true)
 
-  useEffect(() => {
-    clearInterval(fillRef.current)
-    clearInterval(drainRef.current)
-
-    if (collecting) {
-      // Sobe o nível gradualmente até ~88%
-      fillRef.current = setInterval(() => {
-        waterRef.current = Math.min(0.88, waterRef.current + 0.012)
-        setWaterLevel(waterRef.current)
-        if (waterRef.current >= 0.88) clearInterval(fillRef.current)
-      }, 120)
-    } else {
-      // Esvazia suavemente (parado ou sem condensação)
-      drainRef.current = setInterval(() => {
-        waterRef.current = Math.max(0, waterRef.current - 0.02)
-        setWaterLevel(waterRef.current)
-        if (waterRef.current <= 0) clearInterval(drainRef.current)
-      }, 50)
-    }
-
-    return () => {
-      clearInterval(fillRef.current)
-      clearInterval(drainRef.current)
-    }
-  }, [collecting])
+  // Nível do copo (0–1) derivado do totalMl acumulado.
+  // Copo de 200ml: 1ml captado = 0.5% visível, 200ml = 100% cheio.
+  const waterLevel = Math.min((totalMl ?? 0) / 200, 1.0)
 
   // ---------------------------------------------------------------------------
   // GEOMETRIA — viewBox horizontal
@@ -572,12 +542,52 @@ export default function PrototypeAnimation({
           stroke="white" strokeWidth="1.5" opacity="0.10"
         />
 
-        {/* Label + volume */}
+        {/* Label do copo */}
         <text x={CUP_CX} y={CUP_Y + CUP_H + 24} textAnchor="middle"
           fill={isSimulating ? '#22d3ee' : '#64748b'}
           fontSize="11" fontFamily="monospace">
-          {isSimulating ? `≈ ${Math.round(waterLevel * yieldMlH)} ml` : 'Coletor'}
+          Coletor · 200ml
         </text>
+
+        {/* Indicador de volume lateral — régua à direita do copo */}
+        <g>
+          {/* Linha vertical da régua */}
+          <line
+            x1={CUP_X + CUP_TOP_W + 8} y1={CUP_Y}
+            x2={CUP_X + CUP_TOP_W + 8} y2={CUP_Y + CUP_H}
+            stroke="#334155" strokeWidth="1" opacity="0.6"
+          />
+          {/* Marcas de graduação (0%, 50%, 100%) */}
+          {[0, 0.5, 1].map((frac, i) => (
+            <line key={i}
+              x1={CUP_X + CUP_TOP_W + 5} y1={CUP_Y + CUP_H * frac}
+              x2={CUP_X + CUP_TOP_W + 11} y2={CUP_Y + CUP_H * frac}
+              stroke="#475569" strokeWidth="1" opacity="0.6"
+            />
+          ))}
+          {/* Marcador no nível atual */}
+          <line
+            x1={CUP_X + CUP_TOP_W + 4}
+            y1={CUP_Y + CUP_H * (1 - waterLevel)}
+            x2={CUP_X + CUP_TOP_W + 15}
+            y2={CUP_Y + CUP_H * (1 - waterLevel)}
+            stroke={waterLevel > 0.02 ? '#22d3ee' : '#334155'}
+            strokeWidth="2"
+            opacity={waterLevel > 0.02 ? 0.9 : 0.4}
+          />
+          {/* Volume em ml — usa o total acumulado do cronômetro quando disponível */}
+          <text
+            x={CUP_X + CUP_TOP_W + 18}
+            y={CUP_Y + CUP_H * (1 - waterLevel)}
+            fill={waterLevel > 0.02 ? '#67e8f9' : '#475569'}
+            fontSize="10" fontFamily="monospace"
+            dominantBaseline="middle"
+          >
+            {totalMl !== null
+              ? `${totalMl.toFixed(1)} ml`
+              : `${Math.round(waterLevel * yieldMlH)} ml`}
+          </text>
+        </g>
 
         {/* ============================================================
             KEYFRAMES INLINE

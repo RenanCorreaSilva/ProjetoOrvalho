@@ -12,8 +12,8 @@ export default function Header() {
       <div className="flex items-center gap-2">
         <Droplets size={22} className="text-cyan-400" />
         <span className="font-bold text-lg tracking-tight text-white">
-          AWG Sim{' '}
-          <span className="text-cyan-400">RDJ</span>
+          PROJETO{' '}
+          <span className="text-cyan-400">ORVALHO</span>
         </span>
         <span className="ml-2 text-xs text-gray-500 font-mono border border-gray-600 px-1.5 py-0.5 rounded">
           v0.1
@@ -39,7 +39,7 @@ export default function Header() {
 
       {/* Badge do projeto */}
       <div className="flex items-center gap-2 text-xs text-gray-500">
-        <span className="hidden md:block">Projeto Universitário — Eng. Mecânica</span>
+        <span className="hidden md:block">Projeto Universitário — Engenharia</span>
         <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
       </div>
     </header>

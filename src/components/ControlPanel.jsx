@@ -8,8 +8,25 @@ export default function ControlPanel({
   isSimulating,
   onToggleSimulation,
   simResult,
+  speed,
+  setSpeed,
+  elapsedMs,
+  totalMl,
 }) {
   const r = simResult || {}
+
+  // Tempo simulado (cresce mais rápido que o real quando speed > 1)
+  const simulatedSec = Math.floor((elapsedMs / 1000) * speed)
+  const simMM = String(Math.floor(simulatedSec / 60)).padStart(2, '0')
+  const simSS = String(simulatedSec % 60).padStart(2, '0')
+  const simTimeStr = `${simMM}:${simSS}`
+
+  // Tempo real (para exibir quando speed > 1)
+  const realSec = Math.floor(elapsedMs / 1000)
+  const realMM = String(Math.floor(realSec / 60)).padStart(2, '0')
+  const realSS = String(realSec % 60).padStart(2, '0')
+  const realTimeStr = `${realMM}:${realSS}`
+
   return (
     <aside className="w-72 xl:w-80 shrink-0 bg-gray-800 border-r border-gray-700 flex flex-col overflow-y-auto">
       <div className="p-5 flex flex-col gap-6 flex-1">
@@ -74,7 +91,6 @@ export default function ControlPanel({
             className="w-full"
           />
 
-          {/* T (°C) alimenta getDewPoint / getAbsoluteHumidity em lib/psychrometrics.js */}
           <div className="flex justify-between text-xs text-gray-600">
             <span>10°C (mín.)</span>
             <span>40°C (máx.)</span>
@@ -102,7 +118,6 @@ export default function ControlPanel({
             className="w-full"
           />
 
-          {/* RH (%) é o segundo parâmetro de Magnus-Tetens: γ = ln(RH/100) + (17.67·T)/(T+243.5) */}
           <div className="flex justify-between text-xs text-gray-600">
             <span>10% (mín.)</span>
             <span>100% (máx.)</span>
@@ -144,7 +159,7 @@ export default function ControlPanel({
 
       </div>
 
-      {/* --- Botão principal + status --- */}
+      {/* --- Botão principal + controles --- */}
       <div className="p-5 border-t border-gray-700 flex flex-col gap-3">
         <button
           onClick={onToggleSimulation}
@@ -160,6 +175,67 @@ export default function ControlPanel({
             : <><Play size={18} fill="currentColor" /> SIMULAR CAPTAÇÃO</>
           }
         </button>
+
+        {/* --- Velocidade de simulação --- */}
+        <div className="flex flex-col gap-1.5">
+          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            Velocidade
+          </span>
+          <div className="flex gap-2">
+            {[1, 1.5, 2].map(s => (
+              <button
+                key={s}
+                onClick={() => setSpeed(s)}
+                className={`flex-1 py-1.5 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer
+                  ${speed === s
+                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 shadow-sm shadow-cyan-900/30'
+                    : 'bg-gray-700/50 text-gray-500 border border-gray-600 hover:border-gray-500 hover:text-gray-400'
+                  }`}
+              >
+                {s}×
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* --- Cronômetro --- */}
+        {elapsedMs > 0 && (
+          <div className="bg-gray-900/60 border border-cyan-900/40 rounded-lg p-3 flex flex-col gap-2">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              {isSimulating ? 'Cronômetro' : 'Último resultado'}
+            </p>
+
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-gray-500 flex items-center gap-1.5">
+                <Clock size={11} />
+                Tempo simulado
+              </span>
+              <span className="font-mono text-sm text-cyan-300 tabular-nums">
+                {simTimeStr}
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-gray-500 flex items-center gap-1.5">
+                <Droplets size={11} />
+                Água gerada
+              </span>
+              <span className={`font-mono text-sm tabular-nums ${totalMl > 0.001 ? 'text-cyan-400' : 'text-gray-500'}`}>
+                {totalMl.toFixed(2)} ml
+              </span>
+            </div>
+
+            {/* Tempo real — só relevante quando speed > 1 */}
+            {speed > 1 && (
+              <div className="flex justify-between items-center pt-1.5 border-t border-gray-700/50">
+                <span className="text-xs text-gray-600">Tempo real</span>
+                <span className="font-mono text-xs text-gray-500 tabular-nums">
+                  {realTimeStr}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Indicador de status */}
         <div className="flex items-center gap-2 text-xs">
