@@ -4,10 +4,12 @@ import ControlPanel from './components/ControlPanel'
 import ThermalChart from './components/ThermalChart'
 import PrototypeAnimation from './components/PrototypeAnimation'
 import KPIPanel from './components/KPIPanel'
+import PesquisaPage from './components/PesquisaPage'
 import { calculateSimulation, BATTERY_DURATION_S } from './lib/psychrometrics'
 import { useWeatherData } from './hooks/useWeatherData'
 
 export default function App() {
+  const [activeTab, setActiveTab] = useState('Simulador')
   const [isSimulating, setIsSimulating] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
   const [coolingMode, setCoolingMode] = useState('peltier')
@@ -94,62 +96,79 @@ export default function App() {
 
   return (
     <div className="h-screen w-screen bg-gray-900 text-gray-100 flex flex-col overflow-hidden">
-      <Header />
+      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <main className="flex flex-1 overflow-hidden">
-        {/* Painel Esquerdo — Controles */}
-        <ControlPanel
-          temperature={temperature} setTemperature={setTemperature}
-          humidity={humidity} setHumidity={setHumidity}
-          date={date} setDate={setDate}
-          time={time} setTime={setTime}
-          location={location} setLocation={setLocation}
-          fetchWeather={fetchWeather}
-          weatherLoading={weatherLoading}
-          weatherError={weatherError}
-          weatherData={weatherData}
-          searchCities={searchCities}
-          suggestions={suggestions}
-          isSearching={isSearching}
-          clearSuggestions={clearSuggestions}
-          isSimulating={isSimulating}
-          isPaused={isPaused}
-          coolingMode={coolingMode}
-          setCoolingMode={setCoolingMode}
-          onStart={handleStart}
-          onPause={handlePause}
-          onResume={handleResume}
-          onStop={handleStop}
-          simResult={simResult}
-          speed={speed} setSpeed={setSpeed}
-          elapsedMs={elapsedMs}
-          totalMl={totalMl}
-        />
+      {activeTab === 'Simulador' && (
+        <main className="flex flex-1 overflow-hidden">
+          {/* Painel Esquerdo — Controles */}
+          <ControlPanel
+            temperature={temperature} setTemperature={setTemperature}
+            humidity={humidity} setHumidity={setHumidity}
+            date={date} setDate={setDate}
+            time={time} setTime={setTime}
+            location={location} setLocation={setLocation}
+            fetchWeather={fetchWeather}
+            weatherLoading={weatherLoading}
+            weatherError={weatherError}
+            weatherData={weatherData}
+            searchCities={searchCities}
+            suggestions={suggestions}
+            isSearching={isSearching}
+            clearSuggestions={clearSuggestions}
+            isSimulating={isSimulating}
+            isPaused={isPaused}
+            coolingMode={coolingMode}
+            setCoolingMode={setCoolingMode}
+            onStart={handleStart}
+            onPause={handlePause}
+            onResume={handleResume}
+            onStop={handleStop}
+            simResult={simResult}
+            speed={speed} setSpeed={setSpeed}
+            elapsedMs={elapsedMs}
+            totalMl={totalMl}
+          />
 
-        {/* Centro — Gráfico Térmico + Animação do Protótipo */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <div className="flex-1 min-h-0 border-b border-gray-700 p-4">
-            <ThermalChart
-              isSimulating={isSimulating}
-              temperature={temperature}
-              humidity={humidity}
-              simResult={simResult}
-            />
+          {/* Centro — Gráfico Térmico + Animação do Protótipo */}
+          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+            <div className="flex-1 min-h-0 border-b border-gray-700 p-4">
+              <ThermalChart
+                isSimulating={isSimulating}
+                temperature={temperature}
+                humidity={humidity}
+                simResult={simResult}
+              />
+            </div>
+            <div className="flex-1 min-h-0 p-4 flex flex-col items-center justify-center overflow-hidden">
+              <PrototypeAnimation
+                isSimulating={isSimulating}
+                temperature={temperature}
+                humidity={humidity}
+                simResult={simResult}
+                totalMl={totalMl}
+              />
+            </div>
           </div>
-          <div className="flex-1 min-h-0 p-4 flex flex-col items-center justify-center overflow-hidden">
-            <PrototypeAnimation
-              isSimulating={isSimulating}
-              temperature={temperature}
-              humidity={humidity}
-              simResult={simResult}
-              totalMl={totalMl}
-            />
-          </div>
-        </div>
 
-        {/* Painel Direito — KPIs e Resultados */}
-        <KPIPanel isSimulating={isSimulating} simResult={simResult} elapsedMs={elapsedMs} />
-      </main>
+          {/* Painel Direito — KPIs e Resultados */}
+          <KPIPanel isSimulating={isSimulating} simResult={simResult} elapsedMs={elapsedMs} />
+        </main>
+      )}
+
+      {activeTab === 'Pesquisa' && (
+        <main className="flex flex-1 overflow-hidden">
+          <PesquisaPage />
+        </main>
+      )}
+
+      {activeTab === 'Sobre' && (
+        <main className="flex flex-1 overflow-hidden items-center justify-center">
+          <div className="text-center space-y-3">
+            <div className="text-gray-500 text-sm">Aba em construção</div>
+            <div className="text-gray-600 text-xs">Projeto Orvalho — AWG Sim RDJ</div>
+          </div>
+        </main>
+      )}
     </div>
   )
 }

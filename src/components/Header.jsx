@@ -1,11 +1,8 @@
-import { useState } from 'react'
 import { Droplets } from 'lucide-react'
 
 const NAV_LINKS = ['Simulador', 'Pesquisa', 'Sobre']
 
-export default function Header() {
-  const [activeTab, setActiveTab] = useState('Simulador')
-
+export default function Header({ activeTab, setActiveTab }) {
   return (
     <header className="h-14 shrink-0 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-6">
       {/* Logo */}
