@@ -1,6 +1,6 @@
 import { AlertTriangle } from 'lucide-react'
 
-export default function KPICard({ label, value, unit, icon, alert, isSimulating }) {
+export default function KPICard({ label, value, unit, icon, alert, subvalue, isSimulating }) {
   return (
     <div className="bg-gray-700/40 border border-gray-600/60 rounded-xl p-4
                     hover:border-gray-500 transition-colors duration-200">
@@ -22,6 +22,13 @@ export default function KPICard({ label, value, unit, icon, alert, isSimulating 
         </span>
         <span className="text-sm text-gray-500 mb-1 font-mono">{unit}</span>
       </div>
+
+      {/* Valor secundário informativo (ex: R$/L abaixo do R$/h) */}
+      {isSimulating && subvalue && (
+        <div className="mt-2 text-xs text-gray-500 font-mono">
+          {subvalue}
+        </div>
+      )}
 
       {/* Badge de alerta (apenas quando simulando e se tiver alerta) */}
       {isSimulating && alert && (

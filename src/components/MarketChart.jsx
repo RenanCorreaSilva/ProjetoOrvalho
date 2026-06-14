@@ -19,7 +19,15 @@ function buildMarketData(simResult) {
       ? Math.round(r.costPerLiter_BRL * 100) / 100
       : 0
   return [
-    { name: 'AWG', value: awgCost, fill: '#ef4444', label: 'Este protótipo' },
+    {
+      name: 'AWG',
+      value: awgCost,
+      fill: '#ef4444',
+      label: 'Este protótipo',
+      costPerHour: r.costPerHour_BRL ?? 0,
+      waterYield_ml_h: r.waterYield_ml_h ?? 0,
+      hasCondensation: r.hasCondensation ?? false,
+    },
     ...REFERENCE_DATA,
   ]
 }
@@ -32,17 +40,41 @@ const LABELS = {
 }
 
 const CustomTooltip = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-gray-800 border border-gray-600 rounded-lg p-3 text-xs shadow-xl">
-        <p className="text-gray-300 font-medium mb-1">{LABELS[label] || label}</p>
-        <p className="font-mono font-bold" style={{ color: payload[0].payload.fill }}>
-          R$ {payload[0].value.toFixed(2)} / litro
-        </p>
-      </div>
-    )
-  }
-  return null
+  if (!active || !payload || !payload.length) return null
+  const entry = payload[0].payload
+
+  return (
+    <div className="bg-gray-800 border border-gray-600 rounded-lg p-3 text-xs shadow-xl min-w-[160px]">
+      <p className="text-gray-300 font-medium mb-2">{LABELS[label] || label}</p>
+      <p className="font-mono font-bold mb-1" style={{ color: entry.fill }}>
+        R$ {payload[0].value.toFixed(2)} / litro
+      </p>
+      {label === 'AWG' && (
+        <div className="border-t border-gray-700 mt-2 pt-2 flex flex-col gap-1 text-gray-400">
+          <div className="flex justify-between gap-4">
+            <span>Custo Peltier (fixo)</span>
+            <span className="font-mono text-amber-400">R$ {entry.costPerHour.toFixed(3)}/h</span>
+          </div>
+          <div className="flex justify-between gap-4">
+            <span>Produção</span>
+            <span className="font-mono text-cyan-400">
+              {entry.hasCondensation ? `${entry.waterYield_ml_h.toFixed(1)} ml/h` : '0 ml/h'}
+            </span>
+          </div>
+          <div className="flex justify-between gap-4 border-t border-gray-700 pt-1 mt-1">
+            <span className="text-gray-300">Custo/litro</span>
+            <span className="font-mono text-red-400">
+              {entry.hasCondensation ? `R$ ${payload[0].value.toFixed(2)}/L` : '∞ (sem captação)'}
+            </span>
+          </div>
+          <p className="text-gray-600 mt-1 leading-relaxed">
+            Custo fixo ÷ produção horária = R$/L.<br />
+            Quanto menor a temperatura, menos vapor no ar, menos água captada e maior o custo por litro.
+          </p>
+        </div>
+      )}
+    </div>
+  )
 }
 
 export default function MarketChart({ isSimulating, simResult }) {

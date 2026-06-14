@@ -78,12 +78,20 @@ export default function ThermalChart({ isSimulating, temperature, simResult }) {
             <YAxis
               stroke="#374151"
               tick={{ fontSize: 10, fill: '#6b7280' }}
-              domain={['auto', 'auto']}
+              domain={[-40, 40]}
+              ticks={[-40, -30, -20, -10, 0, 10, 20, 30, 40]}
               unit="°C"
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend
               wrapperStyle={{ fontSize: 11, color: '#9ca3af', paddingTop: 4 }}
+            />
+            {/* Linha de referência: zero graus (centro da escala) */}
+            <ReferenceLine
+              y={0}
+              stroke="#4b5563"
+              strokeWidth={1}
+              label={{ value: '0°C', position: 'insideTopLeft', fill: '#6b7280', fontSize: 10 }}
             />
             {/* Linha de referência: ponto de orvalho calculado (limiar de condensação) */}
             <ReferenceLine

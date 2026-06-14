@@ -4,15 +4,29 @@ import ControlPanel from './components/ControlPanel'
 import ThermalChart from './components/ThermalChart'
 import PrototypeAnimation from './components/PrototypeAnimation'
 import KPIPanel from './components/KPIPanel'
-import { calculateSimulation } from './lib/psychrometrics'
+import { calculateSimulation, BATTERY_DURATION_S } from './lib/psychrometrics'
+import { useWeatherData } from './hooks/useWeatherData'
 
 export default function App() {
   const [isSimulating, setIsSimulating] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
+  const [coolingMode, setCoolingMode] = useState('peltier')
   const [temperature, setTemperature] = useState(28)
   const [humidity, setHumidity] = useState(75)
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
+  const [location, setLocation] = useState('')
   const [speed, setSpeed] = useState(1)
+
+  const { fetchWeather, isLoading: weatherLoading, error: weatherError, weatherData, searchCities, suggestions, isSearching, clearSuggestions } = useWeatherData()
+
+  // Quando dados climáticos chegam, preenche temperatura e umidade automaticamente
+  useEffect(() => {
+    if (weatherData) {
+      setTemperature(Math.round(weatherData.temp_c))
+      setHumidity(weatherData.humidity)
+    }
+  }, [weatherData])
   const [elapsedMs, setElapsedMs] = useState(0)
   const [totalMl, setTotalMl] = useState(0)
 
@@ -21,8 +35,8 @@ export default function App() {
   const simResultRef = useRef(null)
 
   const simResult = useMemo(
-    () => calculateSimulation(temperature, humidity),
-    [temperature, humidity]
+    () => calculateSimulation(temperature, humidity, coolingMode),
+    [temperature, humidity, coolingMode]
   )
 
   // Mantém refs sincronizados para o intervalo ler os valores mais recentes
@@ -32,26 +46,51 @@ export default function App() {
 
   useEffect(() => {
     if (isSimulating) {
-      setElapsedMs(0)
-      setTotalMl(0)
       const TICK = 100
       timerRef.current = setInterval(() => {
-        setElapsedMs(prev => prev + TICK)
+        setElapsedMs(prev => prev + TICK * speedRef.current)
         const sr = simResultRef.current
         if (sr?.hasCondensation) {
-          // Acumula ml usando a velocidade atual — correto mesmo com mudanças de speed
           setTotalMl(prev => prev + (sr.waterYield_ml_h / 3600) * (TICK / 1000) * speedRef.current)
         }
       }, TICK)
     } else {
       clearInterval(timerRef.current)
-      // elapsedMs e totalMl NÃO são resetados aqui: ficam congelados para o
-      // usuário ver o resultado final após parar.
     }
     return () => clearInterval(timerRef.current)
   }, [isSimulating])
 
-  const handleToggleSimulation = () => setIsSimulating(prev => !prev)
+  // Para a simulação automaticamente quando a bateria se esgota (só no modo Peltier)
+  useEffect(() => {
+    if (coolingMode === 'peltier' && isSimulating && elapsedMs / 1000 >= BATTERY_DURATION_S) {
+      setIsSimulating(false)
+      setIsPaused(false)
+    }
+  }, [elapsedMs, isSimulating, coolingMode])
+
+  const handleStart = () => {
+    setElapsedMs(0)
+    setTotalMl(0)
+    setIsPaused(false)
+    setIsSimulating(true)
+  }
+
+  const handlePause = () => {
+    setIsSimulating(false)
+    setIsPaused(true)
+  }
+
+  const handleResume = () => {
+    setIsPaused(false)
+    setIsSimulating(true)
+  }
+
+  const handleStop = () => {
+    setIsSimulating(false)
+    setIsPaused(false)
+    setElapsedMs(0)
+    setTotalMl(0)
+  }
 
   return (
     <div className="h-screen w-screen bg-gray-900 text-gray-100 flex flex-col overflow-hidden">
@@ -64,8 +103,23 @@ export default function App() {
           humidity={humidity} setHumidity={setHumidity}
           date={date} setDate={setDate}
           time={time} setTime={setTime}
+          location={location} setLocation={setLocation}
+          fetchWeather={fetchWeather}
+          weatherLoading={weatherLoading}
+          weatherError={weatherError}
+          weatherData={weatherData}
+          searchCities={searchCities}
+          suggestions={suggestions}
+          isSearching={isSearching}
+          clearSuggestions={clearSuggestions}
           isSimulating={isSimulating}
-          onToggleSimulation={handleToggleSimulation}
+          isPaused={isPaused}
+          coolingMode={coolingMode}
+          setCoolingMode={setCoolingMode}
+          onStart={handleStart}
+          onPause={handlePause}
+          onResume={handleResume}
+          onStop={handleStop}
           simResult={simResult}
           speed={speed} setSpeed={setSpeed}
           elapsedMs={elapsedMs}
@@ -94,7 +148,7 @@ export default function App() {
         </div>
 
         {/* Painel Direito — KPIs e Resultados */}
-        <KPIPanel isSimulating={isSimulating} simResult={simResult} />
+        <KPIPanel isSimulating={isSimulating} simResult={simResult} elapsedMs={elapsedMs} />
       </main>
     </div>
   )

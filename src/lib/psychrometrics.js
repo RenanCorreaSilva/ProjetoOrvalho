@@ -10,7 +10,18 @@
 export const AIRFLOW_M3_H = 10      // Vazão de ar do mini cooler (m³/h)
 export const PELTIER_POWER_W = 60   // Consumo da pastilha Peltier (W)
 export const PELTIER_DELTA_T = 15   // Redução de temperatura do dissipador vs. ambiente (°C)
-export const ENERGY_COST_KWH = 1.20 // Custo do kWh no Rio de Janeiro (R$)
+// Resfriamento radiativo passivo em clima tropical úmido (Brasil): superfície metálica
+// exposta ao céu limpo de madrugada irradia ~4 °C abaixo do ar — sem consumo elétrico.
+export const PASSIVE_DELTA_T = 4
+// Tarifa residencial Light (Rio de Janeiro) — bandeira verde, aprovada ANEEL jun/2025.
+// Aplica-se apenas ao modo Peltier + rede elétrica.
+export const ENERGY_COST_KWH_GRID_RJ = 0.89
+
+// Bateria 12V Li-Ion 18650 que alimenta o cooler
+export const BATTERY_VOLTAGE_V    = 12
+export const BATTERY_CAPACITY_MAH = 2400
+export const BATTERY_ENERGY_WH    = (BATTERY_VOLTAGE_V * BATTERY_CAPACITY_MAH) / 1000  // 28.8 Wh
+export const BATTERY_DURATION_S   = (BATTERY_ENERGY_WH / PELTIER_POWER_W) * 3600       // 1728 s
 
 // ----------------------------------------------------------------------------
 //  1. Ponto de Orvalho — Magnus-Tetens
@@ -46,9 +57,16 @@ export function getAbsoluteHumidity(T, RH) {
 //      power_W                     // W (constante do Peltier)
 //    }
 // ----------------------------------------------------------------------------
-export function calculateSimulation(T_ambiente, RH_ambiente) {
-  const tDissipador = T_ambiente - PELTIER_DELTA_T
+export function calculateSimulation(T_ambiente, RH_ambiente, coolingMode = 'peltier') {
+  const isPeltier = coolingMode === 'peltier'
+  const effectiveDeltaT = isPeltier ? PELTIER_DELTA_T : PASSIVE_DELTA_T
+  const effectivePower_W = isPeltier ? PELTIER_POWER_W : 0
+
+  const tDissipador = T_ambiente - effectiveDeltaT
   const dewPoint = getDewPoint(T_ambiente, RH_ambiente)
+
+  // Custo fixo de operação: quanto custa manter o Peltier ligado por hora
+  const costPerHour_BRL = isPeltier ? (PELTIER_POWER_W / 1000) * ENERGY_COST_KWH_GRID_RJ : 0
 
   // Resultado base (cenário sem condensação)
   const result = {
@@ -60,7 +78,9 @@ export function calculateSimulation(T_ambiente, RH_ambiente) {
     waterYield_ml_h: 0,
     efficiency_L_kWh: 0,
     costPerLiter_BRL: 0,
-    power_W: PELTIER_POWER_W,
+    costPerHour_BRL,
+    power_W: effectivePower_W,
+    coolingMode,
   }
 
   // Lógica de geração: só condensa se o dissipador atingir/ultrapassar o ponto de orvalho.
@@ -71,10 +91,9 @@ export function calculateSimulation(T_ambiente, RH_ambiente) {
     const waterYield_ml_h = extracted_g_m3 * AIRFLOW_M3_H        // 1 g de água ≈ 1 ml
 
     if (waterYield_ml_h > 0) {
-      const kWh_per_hour = PELTIER_POWER_W / 1000
       const liters_h = waterYield_ml_h / 1000
-      const efficiency_L_kWh = liters_h / kWh_per_hour
-      const costPerLiter_BRL = ENERGY_COST_KWH / efficiency_L_kWh
+      const efficiency_L_kWh = isPeltier ? liters_h / (PELTIER_POWER_W / 1000) : 0
+      const costPerLiter_BRL = isPeltier ? ENERGY_COST_KWH_GRID_RJ / efficiency_L_kWh : 0
 
       result.hasCondensation = true
       result.waterYield_ml_h = waterYield_ml_h

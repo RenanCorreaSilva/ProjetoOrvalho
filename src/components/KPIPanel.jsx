@@ -1,13 +1,13 @@
-import { BarChart2, Droplets, Zap, DollarSign, Beaker } from 'lucide-react'
+import { BarChart2, Droplets, Zap, DollarSign } from 'lucide-react'
 import KPICard from './KPICard'
+import BatteryCard from './BatteryCard'
 import MarketChart from './MarketChart'
 
-// Limiar acima do qual o custo por litro é sinalizado como elevado (R$/L).
-const HIGH_COST_THRESHOLD = 2.0
 
-export default function KPIPanel({ isSimulating, simResult }) {
+export default function KPIPanel({ isSimulating, simResult, elapsedMs = 0 }) {
   const r = simResult || {}
   const hasWater = r.hasCondensation && r.waterYield_ml_h > 0
+  const isAmbienteMode = r.coolingMode === 'ambiente'
 
   // KPIs derivados do resultado real da simulação psicrométrica.
   const kpis = [
@@ -16,28 +16,25 @@ export default function KPIPanel({ isSimulating, simResult }) {
       value: hasWater ? Math.round(r.waterYield_ml_h).toString() : '0',
       unit: 'ml/h',
       icon: <Droplets size={15} />,
-      // Alerta vermelho quando o dissipador não atinge o ponto de orvalho.
       alert: !hasWater ? 'Nenhuma Condensação!' : null,
     },
     {
       label: 'Eficiência',
-      value: hasWater ? r.efficiency_L_kWh.toFixed(3) : '0',
-      unit: 'L/kWh',
+      value: isAmbienteMode ? '—' : (hasWater ? r.efficiency_L_kWh.toFixed(3) : '0'),
+      unit: isAmbienteMode ? '' : 'L/kWh',
       icon: <Zap size={15} />,
       alert: null,
     },
     {
       label: 'Custo Operacional',
-      value: hasWater ? `R$ ${r.costPerLiter_BRL.toFixed(2)}` : '—',
-      unit: '/ Litro',
+      value: isAmbienteMode ? '—' : `R$ ${(r.costPerHour_BRL ?? 0).toFixed(3)}`,
+      unit: isAmbienteMode ? 'sem custo' : '/ hora (fixo)',
       icon: <DollarSign size={15} />,
-      alert: hasWater && r.costPerLiter_BRL > HIGH_COST_THRESHOLD ? 'Alerta: Alto Custo' : null,
-    },
-    {
-      label: 'Potência Consumida',
-      value: (r.power_W ?? 60).toString(),
-      unit: 'W',
-      icon: <Beaker size={15} />,
+      subvalue: !isAmbienteMode && hasWater
+        ? `≈ R$ ${r.costPerLiter_BRL.toFixed(2)}/L nesta temperatura`
+        : !isAmbienteMode && !hasWater
+          ? 'sem captação — custo/L indefinido'
+          : null,
       alert: null,
     },
   ]
@@ -66,15 +63,26 @@ export default function KPIPanel({ isSimulating, simResult }) {
               unit={kpi.unit}
               icon={kpi.icon}
               alert={kpi.alert}
+              subvalue={kpi.subvalue}
             />
           ))}
+          <BatteryCard isSimulating={isSimulating} elapsedMs={elapsedMs} coolingMode={r.coolingMode} />
         </div>
 
         {/* Gráfico de Análise de Mercado */}
         <MarketChart isSimulating={isSimulating} simResult={simResult} />
 
         {/* Nota de rodapé contextual */}
-        {isSimulating && (
+        {isSimulating && isAmbienteMode && (
+          <div className="bg-blue-950/30 border border-blue-900/50 rounded-lg p-3">
+            <p className="text-xs text-blue-400/80 leading-relaxed">
+              <span className="font-semibold">Modo passivo:</span> resfriamento radiativo natural —
+              superfície metálica irradia ~4 °C abaixo do ar (típico de madrugadas claras no Brasil).
+              Nenhum custo energético calculado.
+            </p>
+          </div>
+        )}
+        {isSimulating && !isAmbienteMode && (
           hasWater ? (
             <div className="bg-amber-950/30 border border-amber-900/50 rounded-lg p-3">
               <p className="text-xs text-amber-500/80 leading-relaxed">
