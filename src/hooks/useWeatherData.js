@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
 
-const API_KEY = import.meta.env.VITE_WEATHER_API_KEY
+const API_KEY = import.meta.env.VITE_WEATHER_API_KEY || ''
 
 export function useWeatherData() {
   const [isLoading, setIsLoading] = useState(false)
