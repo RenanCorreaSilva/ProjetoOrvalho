@@ -33,6 +33,14 @@ export default function ControlPanel({
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const containerRef = useRef(null)
 
+  const offsetDate = (days) => {
+    const d = new Date()
+    d.setDate(d.getDate() + days)
+    return d.toISOString().slice(0, 10)
+  }
+  const dateMin = offsetDate(-14)
+  const dateMax = offsetDate(14)
+
   const handleInputChange = (e) => {
     const val = e.target.value
     setLocalInput(val)
@@ -45,7 +53,7 @@ export default function ControlPanel({
     setLocation(suggestion.label)
     setDropdownOpen(false)
     clearSuggestions()
-    fetchWeather(suggestion.label)
+    fetchWeather(suggestion.label, date, time)
   }
 
   const handleSearch = () => {
@@ -53,7 +61,7 @@ export default function ControlPanel({
       setLocation(localInput.trim())
       setDropdownOpen(false)
       clearSuggestions()
-      fetchWeather(localInput.trim())
+      fetchWeather(localInput.trim(), date, time)
     }
   }
 
@@ -212,6 +220,8 @@ export default function ControlPanel({
             <input
               type="date"
               value={date}
+              min={dateMin}
+              max={dateMax}
               onChange={e => setDate(e.target.value)}
               className="w-full pl-9 pr-3 py-2.5 bg-gray-700 border border-gray-600 rounded-lg
                          text-gray-200 text-sm focus:outline-none focus:border-cyan-500
