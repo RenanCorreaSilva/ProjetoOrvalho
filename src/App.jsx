@@ -95,12 +95,14 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen w-screen bg-gray-900 text-gray-100 flex flex-col overflow-hidden">
+    <div className="min-h-screen w-full bg-gray-900 text-gray-100 flex flex-col">
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {activeTab === 'Simulador' && (
-        <main className="flex flex-1 overflow-hidden">
-          {/* Painel Esquerdo — Controles */}
+        /* Mobile: coluna única scroll. Desktop (lg+): 3 colunas fixas sem scroll externo */
+        <main className="flex flex-col lg:flex-row lg:flex-1 lg:overflow-hidden">
+
+          {/* 1ª seção mobile: Configuração — sidebar esquerda no desktop */}
           <ControlPanel
             temperature={temperature} setTemperature={setTemperature}
             humidity={humidity} setHumidity={setHumidity}
@@ -129,9 +131,9 @@ export default function App() {
             totalMl={totalMl}
           />
 
-          {/* Centro — Gráfico Térmico + Animação do Protótipo */}
-          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-            <div className="flex-1 min-h-0 border-b border-gray-700 p-4">
+          {/* 2ª seção mobile: Simulador — Gráfico Térmico + Animação */}
+          <div className="flex flex-col min-w-0 lg:flex-1 lg:overflow-hidden">
+            <div className="border-b border-gray-700 p-4 min-h-[280px] lg:flex-1 lg:min-h-0">
               <ThermalChart
                 isSimulating={isSimulating}
                 temperature={temperature}
@@ -139,7 +141,7 @@ export default function App() {
                 simResult={simResult}
               />
             </div>
-            <div className="flex-1 min-h-0 p-4 flex flex-col items-center justify-center overflow-hidden">
+            <div className="p-4 flex flex-col items-center justify-center min-h-[340px] lg:flex-1 lg:min-h-0 lg:overflow-hidden">
               <PrototypeAnimation
                 isSimulating={isSimulating}
                 temperature={temperature}
@@ -150,7 +152,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* Painel Direito — KPIs e Resultados */}
+          {/* 3ª seção mobile: Gráficos e Dados — sidebar direita no desktop */}
           <KPIPanel isSimulating={isSimulating} simResult={simResult} elapsedMs={elapsedMs} />
         </main>
       )}

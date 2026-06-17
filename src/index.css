@@ -2,6 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile: permite scroll vertical na página inteira */
+html, body, #root {
+  height: 100%;
+}
+
+@media (max-width: 1023px) {
+  html, body, #root {
+    height: auto;
+    overflow-y: auto;
+  }
+}
+
+/* Desktop: retém o comportamento original de tela cheia sem scroll externo */
+@media (min-width: 1024px) {
+  html, body, #root {
+    height: 100%;
+    overflow: hidden;
+  }
+}
+
 /* Scrollbar customizado para tema dark */
 ::-webkit-scrollbar {
   width: 6px;

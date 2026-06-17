@@ -40,7 +40,7 @@ export default function KPIPanel({ isSimulating, simResult, elapsedMs = 0 }) {
   ]
 
   return (
-    <aside className="w-80 xl:w-96 shrink-0 bg-gray-800 border-l border-gray-700 flex flex-col overflow-y-auto">
+    <aside className="w-full lg:w-80 xl:w-96 lg:shrink-0 bg-gray-800 border-t lg:border-t-0 lg:border-l border-gray-700 flex flex-col lg:overflow-y-auto">
       <div className="p-5 flex flex-col gap-4 flex-1">
 
         {/* Cabeçalho do painel */}

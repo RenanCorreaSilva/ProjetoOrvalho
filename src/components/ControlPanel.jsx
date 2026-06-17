@@ -91,7 +91,7 @@ export default function ControlPanel({
   const realTimeStr = `${realMM}:${realSS}`
 
   return (
-    <aside className="w-72 xl:w-80 shrink-0 bg-gray-800 border-r border-gray-700 flex flex-col overflow-y-auto">
+    <aside className="w-full lg:w-72 xl:w-80 lg:shrink-0 bg-gray-800 border-b lg:border-b-0 lg:border-r border-gray-700 flex flex-col lg:overflow-y-auto">
       <div className="p-5 flex flex-col gap-6 flex-1">
 
         {/* Título do painel */}
