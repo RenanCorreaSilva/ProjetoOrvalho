@@ -111,7 +111,7 @@ function CalculadoraInterativa() {
           <label className="text-xs text-gray-400 uppercase tracking-wider">Temperatura do Ar</label>
           <div className="flex items-center gap-3">
             <input
-              type="range" min={-10} max={45} value={T}
+              type="range" min={-10} max={60} value={T}
               onChange={e => setT(Number(e.target.value))}
               className="flex-1 accent-cyan-400"
             />
@@ -259,7 +259,7 @@ function GraficoProducaoUmidade() {
     <div className="space-y-4">
       <div className="flex items-center gap-4">
         <label className="text-xs text-gray-400 uppercase tracking-wider whitespace-nowrap">Temperatura fixada em</label>
-        <input type="range" min={10} max={40} value={T} onChange={e => setT(Number(e.target.value))} className="flex-1 accent-cyan-400" />
+        <input type="range" min={10} max={60} value={T} onChange={e => setT(Number(e.target.value))} className="flex-1 accent-cyan-400" />
         <span className="text-white font-mono w-16 text-right font-bold">{T} °C</span>
       </div>
       <ResponsiveContainer width="100%" height={220}>
