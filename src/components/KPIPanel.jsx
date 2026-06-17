@@ -41,19 +41,19 @@ export default function KPIPanel({ isSimulating, simResult, elapsedMs = 0 }) {
 
   return (
     <aside className="w-full lg:w-80 xl:w-96 lg:shrink-0 bg-gray-800 border-t lg:border-t-0 lg:border-l border-gray-700 flex flex-col lg:overflow-y-auto">
-      <div className="p-5 flex flex-col gap-4 flex-1">
+      <div className="p-4 flex flex-col gap-3 flex-1">
 
         {/* Cabeçalho do painel */}
-        <div className="flex items-center gap-2 pb-3 border-b border-gray-700">
-          <BarChart2 size={15} className="text-cyan-400" />
+        <div className="flex items-center gap-2 pb-2 border-b border-gray-700">
+          <BarChart2 size={14} className="text-cyan-400" />
           <div>
             <h2 className="text-sm font-semibold text-gray-200">Resultados da Simulação</h2>
-            <p className="text-xs text-gray-600 mt-0.5">Viabilidade do protótipo</p>
+            <p className="text-xs text-gray-600">Viabilidade do protótipo</p>
           </div>
         </div>
 
         {/* Grid de KPI Cards */}
-        <div className="grid grid-cols-1 gap-3">
+        <div className="grid grid-cols-1 gap-2">
           {kpis.map((kpi) => (
             <KPICard
               key={kpi.label}

@@ -80,16 +80,16 @@ const CustomTooltip = ({ active, payload, label }) => {
 export default function MarketChart({ isSimulating, simResult }) {
   const marketData = buildMarketData(simResult)
   return (
-    <div className="bg-gray-700/40 border border-gray-600/60 rounded-xl p-4">
-      <div className="flex items-center gap-2 mb-4">
-        <BarChart2 size={14} className="text-cyan-400" />
+    <div className="bg-gray-700/40 border border-gray-600/60 rounded-xl p-3">
+      <div className="flex items-center gap-2 mb-2">
+        <BarChart2 size={13} className="text-cyan-400" />
         <h3 className="text-xs text-gray-400 uppercase tracking-wider font-semibold">
           Análise de Mercado — Custo por Litro
         </h3>
       </div>
 
       {isSimulating ? (
-        <ResponsiveContainer width="100%" height={150}>
+        <ResponsiveContainer width="100%" height={120}>
           <BarChart data={marketData} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" vertical={false} />
             <XAxis
@@ -115,7 +115,7 @@ export default function MarketChart({ isSimulating, simResult }) {
           </BarChart>
         </ResponsiveContainer>
       ) : (
-        <div className="h-36 flex items-center justify-center">
+        <div className="h-24 flex items-center justify-center">
           <p className="text-xs text-gray-700 italic">
             Inicie a simulação para ver a análise
           </p>

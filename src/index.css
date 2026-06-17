@@ -2,19 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Mobile: permite scroll vertical na página inteira */
+/* Mobile: scroll livre na página */
 html, body, #root {
-  height: 100%;
+  height: auto;
+  min-height: 100%;
 }
 
-@media (max-width: 1023px) {
-  html, body, #root {
-    height: auto;
-    overflow-y: auto;
-  }
-}
-
-/* Desktop: retém o comportamento original de tela cheia sem scroll externo */
+/* Desktop: ocupa a tela inteira sem scroll externo — sidebars têm scroll próprio */
 @media (min-width: 1024px) {
   html, body, #root {
     height: 100%;

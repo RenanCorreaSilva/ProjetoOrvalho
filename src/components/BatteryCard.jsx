@@ -4,15 +4,15 @@ import { BATTERY_ENERGY_WH, BATTERY_VOLTAGE_V, BATTERY_CAPACITY_MAH, PELTIER_POW
 export default function BatteryCard({ isSimulating, elapsedMs, coolingMode }) {
   if (coolingMode === 'ambiente') {
     return (
-      <div className="bg-gray-700/40 border border-gray-600/60 rounded-xl p-4">
-        <div className="flex items-start justify-between mb-3">
+      <div className="bg-gray-700/40 border border-gray-600/60 rounded-xl p-3">
+        <div className="flex items-start justify-between mb-1.5">
           <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Bateria</span>
-          <div className="p-1.5 rounded-lg bg-gray-700/50">
-            <Battery size={15} className="text-gray-600" />
+          <div className="p-1 rounded-lg bg-gray-700/50">
+            <Battery size={14} className="text-gray-600" />
           </div>
         </div>
-        <div className="flex items-end justify-between mb-2">
-          <span className="text-3xl font-bold font-mono leading-none text-gray-600">N/A</span>
+        <div className="flex items-end justify-between mb-1">
+          <span className="text-2xl font-bold font-mono leading-none text-gray-600">N/A</span>
           <span className="text-xs text-gray-600">modo passivo</span>
         </div>
         <p className="text-xs text-gray-600">Sem Peltier — bateria não utilizada</p>
@@ -60,25 +60,25 @@ export default function BatteryCard({ isSimulating, elapsedMs, coolingMode }) {
       : Battery
 
   return (
-    <div className="bg-gray-700/40 border border-gray-600/60 rounded-xl p-4">
-      <div className="flex items-start justify-between mb-3">
+    <div className="bg-gray-700/40 border border-gray-600/60 rounded-xl p-3">
+      <div className="flex items-start justify-between mb-1.5">
         <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Bateria</span>
-        <div className={`p-1.5 rounded-lg ${iconBg}`}>
-          <BatteryIcon size={15} className={iconColor} />
+        <div className={`p-1 rounded-lg ${iconBg}`}>
+          <BatteryIcon size={14} className={iconColor} />
         </div>
       </div>
 
-      <div className="flex items-end justify-between mb-3">
-        <span className={`text-3xl font-bold font-mono leading-none ${isIdle ? 'text-gray-600' : textColor}`}>
+      <div className="flex items-end justify-between mb-2">
+        <span className={`text-2xl font-bold font-mono leading-none ${isIdle ? 'text-gray-600' : textColor}`}>
           {isIdle ? '—' : `${Math.round(percentRemaining)}%`}
         </span>
-        <span className="text-sm font-mono text-gray-400">
+        <span className="text-xs font-mono text-gray-400">
           {isIdle ? `${BATTERY_ENERGY_WH} Wh` : `${energyRemaining_Wh.toFixed(1)} Wh`}
         </span>
       </div>
 
       {/* Barra de progresso */}
-      <div className="h-2 bg-gray-700 rounded-full overflow-hidden mb-3">
+      <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden mb-2">
         <div
           className={`h-full rounded-full transition-all duration-500 ${isIdle ? 'bg-gray-600' : barColor}`}
           style={{ width: isIdle ? '100%' : `${percentRemaining}%` }}
@@ -95,7 +95,7 @@ export default function BatteryCard({ isSimulating, elapsedMs, coolingMode }) {
       </div>
 
       {isSimulating && isDead && (
-        <div className="mt-2 inline-flex items-center gap-1.5 bg-red-950/60 border border-red-800/70 text-red-400 text-xs px-2.5 py-1 rounded-full">
+        <div className="mt-1.5 inline-flex items-center gap-1.5 bg-red-950/60 border border-red-800/70 text-red-400 text-xs px-2 py-0.5 rounded-full">
           <BatteryLow size={11} />
           Bateria Esgotada
         </div>

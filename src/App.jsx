@@ -95,12 +95,12 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-gray-900 text-gray-100 flex flex-col">
+    <div className="min-h-screen lg:h-screen w-full bg-gray-900 text-gray-100 flex flex-col lg:overflow-hidden">
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {activeTab === 'Simulador' && (
         /* Mobile: coluna única scroll. Desktop (lg+): 3 colunas fixas sem scroll externo */
-        <main className="flex flex-col lg:flex-row lg:flex-1 lg:overflow-hidden">
+        <main className="flex flex-col lg:flex-row flex-1 lg:overflow-hidden lg:min-h-0">
 
           {/* 1ª seção mobile: Configuração — sidebar esquerda no desktop */}
           <ControlPanel
