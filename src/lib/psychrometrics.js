@@ -1,5 +1,5 @@
 // ============================================================================
-//  PSICROMETRIA — Núcleo de cálculo termodinâmico do AWG Sim RDJ
+//  PSICROMETRIA — Núcleo de cálculo termodinâmico do Simulador de Captação
 //  Toda a física da condensação atmosférica vive aqui (fonte única de verdade).
 //  Os componentes React apenas consomem o resultado de calculateSimulation().
 // ============================================================================

@@ -1,6 +1,6 @@
 import { Droplets } from 'lucide-react'
 
-const NAV_LINKS = ['Simulador', 'Pesquisa', 'Sobre']
+const NAV_LINKS = ['Simulador', 'Pesquisa']
 
 export default function Header({ activeTab, setActiveTab }) {
   return (

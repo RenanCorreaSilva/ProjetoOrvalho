@@ -160,15 +160,6 @@ export default function App() {
           <PesquisaPage />
         </main>
       )}
-
-      {activeTab === 'Sobre' && (
-        <main className="flex flex-1 overflow-hidden items-center justify-center">
-          <div className="text-center space-y-3">
-            <div className="text-gray-500 text-sm">Aba em construção</div>
-            <div className="text-gray-600 text-xs">Projeto Orvalho — AWG Sim RDJ</div>
-          </div>
-        </main>
-      )}
     </div>
   )
 }
