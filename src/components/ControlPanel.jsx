@@ -251,19 +251,19 @@ export default function ControlPanel({
             </span>
           </div>
           <div className="relative">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0.5 h-3 rounded-full pointer-events-none z-10"
-              style={{ background: temperature === 0 ? '#06b6d4' : '#6b7280' }}
+            <div className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-0.5 h-3 rounded-full pointer-events-none z-10"
+              style={{ left: '40%', background: temperature === 0 ? '#06b6d4' : '#6b7280' }}
             />
             <input
-              type="range" min="-40" max="40" value={temperature}
+              type="range" min="-40" max="60" value={temperature}
               onChange={e => { const v = Number(e.target.value); setTemperature(v >= -2 && v <= 2 ? 0 : v) }}
               className="w-full"
             />
           </div>
-          <div className="flex justify-between text-xs text-gray-600">
-            <span>−40°C</span>
-            <span className={temperature === 0 ? 'text-cyan-400 font-semibold' : ''}>0°C</span>
-            <span>40°C</span>
+          <div className="relative text-xs text-gray-600 h-4">
+            <span className="absolute left-0">−40°C</span>
+            <span className={`absolute -translate-x-1/2 ${temperature === 0 ? 'text-cyan-400 font-semibold' : ''}`} style={{ left: '40%' }}>0°C</span>
+            <span className="absolute right-0">60°C</span>
           </div>
         </section>
 
